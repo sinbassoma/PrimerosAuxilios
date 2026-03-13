@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Primeros Auxilios SINBA</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#5b0aa3;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+
+.container{
+width:95%;
+max-width:900px;
+background:#6c1bbd;
+padding:25px;
+border-radius:12px;
+margin:auto;
+}
+h1,h2,h3{text-align:center}
+
+button{
+padding:12px;
+width:100%;
+margin-top:10px;
+background:#ffc400;
+border:none;
+color:#3d0070;
+font-size:16px;
+cursor:pointer;
+border-radius:6px;
+font-weight:bold;
+}
+
+.option{
+background:#7b2bc7;
+padding:12px;
+margin-top:10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.option:hover{
+background:#8f45d4;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+border:none;
+}
+.tutorial-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+margin-bottom:25px;
+}
+
+.tutorial-card{
+background:white;
+border-radius:10px;
+padding:15px;
+text-align:center;
+color:#333;
+box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
+
+.tutorial-icon{
+font-size:30px;
+margin-bottom:5px;
+}
+
+.tutorial-title{
+font-weight:bold;
+margin-bottom:5px;
+}
+
+.tutorial-text{
+font-size:14px;
+color:#666;
+}
+#certificate{
+background:white;
+color:black;
+padding:40px;
+margin-top:20px;
+border-radius:10px;
+display:none;
+text-align:center;
+}
+
+.logo-spin{
+display:block;
+margin:auto;
+width:150px;
+margin-bottom:20px;
+animation:girar 1s linear infinite;
+}
+
+@keyframes girar{
+
+from{
+transform:rotate(0deg);
+}
+
+to{
+transform:rotate(360deg);
+}
+
+}
+@media (max-width:600px){
+
+h1{
+font-size:22px;
+}
+
+h2{
+font-size:18px;
+}
+
+.container{
+padding:18px;
+}
+
+button{
+font-size:18px;
+}
+
+}
+
+.logo-intro{
+display:block;
+margin:auto;
+width:160px;
+margin-bottom:20px;
+animation:introLogo 3s ease forwards;
+}
+
+@keyframes introLogo{
+
+0%{
+transform:rotate(0deg) scale(1);
+}
+
+70%{
+transform:rotate(720deg) scale(1);
+}
+
+100%{
+transform:rotate(720deg) scale(0.5);
+}
+
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🚑 Capacitación Primeros Auxilios</h1>
+<h3>SINBA SURA SAC</h3>
+
+<div id="intro">
+<img src="logo-sinba.png" class="logo-intro">
+<p><b>Protocolo PASST</b></p>
+<p>Proteger – Avisar – Socorrer – Soporte – Traslado</p>
+Aprende a salvar vidas con el protocolo PAS
+</p>
+<div class="tutorial-grid">
+
+  <div class="tutorial-card">
+    <div class="tutorial-icon">🛡️</div>
+    <div class="tutorial-title">PROTEGER</div>
+    <div class="tutorial-text">Asegura la zona primero</div>
+  </div>
+
+  <div class="tutorial-card">
+    <div class="tutorial-icon">📞</div>
+    <div class="tutorial-title">AVISAR</div>
+    <div class="tutorial-text">Llama a emergencias</div>
+  </div>
+
+  <div class="tutorial-card">
+    <div class="tutorial-icon">🩹</div>
+    <div class="tutorial-title">SOCORRER</div>
+    <div class="tutorial-text">Aplica primeros auxilios</div>
+  </div>
+
+</div>
+<div>
+<input id="name" placeholder="Ingrese su nombre">
+<input id="area" placeholder="Ingrese su área">
+<button onclick="startGame()">Iniciar Examen Capacitación</button>
+</div>
+</div>
+
+<div id="game" style="display:none">
+
+<h2 id="question"></h2>
+
+<h3 id="timer">⏱ Tiempo: 15</h3>
+
+<div id="options"></div>
+
+</div>
+
+<div id="result" style="display:none">
+
+<h2 id="score"></h2>
+
+<h3>🏆 Ranking Global</h3>
+
+<div id="ranking"></div>
+
+<button onclick="generateCertificate()">Generar Certificado</button>
+<button onclick="downloadPDF()">Descargar PDF del certificado</button>
+<button onclick="location.reload()">Reiniciar</button>
+
+</div>
+
+<div id="certificate">
+
+<h1>CERTIFICADO DE CAPACITACIÓN</h1>
+
+<h2>SINBA SURA SAC</h2>
+
+<p>Área Innovación y Operaciones</p>
+
+<p>Certifica que</p>
+
+<h2 id="certName"></h2>
+
+<h3 id="certArea"></h3>
+<p>ha completado satisfactoriamente la capacitación de</p>
+
+<h2>PRIMEROS AUXILIOS</h2>
+
+<p id="certScore"></p>
+
+<p id="certDate"></p>
+
+<p id="certTime"></p>
+
+
+
+</div>
+
+</div>
+
+<audio id="ambulanceSound" src="ambulancia.mp3"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getStorage, ref as storageRef, uploadBytes } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-storage.js";
+const firebaseConfig = {
+
+apiKey: "AIzaSyA1jTwZA9Wj1AW1ZsFagToYAlWbiykJOqk",
+authDomain: "juegoprimerosauxilios.firebaseapp.com",
+databaseURL: "https://juegoprimerosauxilios-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId: "juegoprimerosauxilios",
+storageBucket: "juegoprimerosauxilios.firebasestorage.app",
+messagingSenderId: "670473113575",
+appId: "1:670473113575:web:a7c08921396327a3b1f742"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const storage = getStorage(app);
+
+let player=""
+let area=""
+let score=0
+let current=0
+
+let timeLeft=15
+let timer=null
+
+const questions=[
+
+{q:"Un trabajador colapsa y no respira ¿Qué hacer?",
+a:[
+{text:"Iniciar RCP",correct:true},
+{text:"Dar agua",correct:false},
+{text:"Esperar",correct:false}
+]},
+
+{q:"Hemorragia severa en brazo",
+a:[
+{text:"Aplicar presión directa",correct:true},
+{text:"Ignorar",correct:false},
+{text:"Solo limpiar",correct:false}
+]},
+
+{q:"Persona convulsionando",
+a:[
+{text:"Proteger cabeza",correct:true},
+{text:"Meter objeto en boca",correct:false},
+{text:"Sujetarlo fuerte",correct:false}
+]},
+
+{q:"Quemadura con ampollas",
+a:[
+{text:"Enfriar con agua",correct:true},
+{text:"Pasta dental",correct:false},
+{text:"Romper ampolla",correct:false}
+]},
+
+{q:"Caída con posible lesión de columna",
+a:[
+{text:"Inmovilizar",correct:true},
+{text:"Sentarlo",correct:false},
+{text:"Levantarlo",correct:false}
+]},
+
+{q:"Persona inconsciente pero respira",
+a:[
+{text:"Colocar en posición lateral",correct:true},
+{text:"Dar café",correct:false},
+{text:"Sacudir fuerte",correct:false}
+]},
+
+{q:"Corte leve en dedo",
+a:[
+{text:"Limpiar y cubrir con gasa",correct:true},
+{text:"Ignorar",correct:false},
+{text:"Aplicar tierra",correct:false}
+]},
+
+{q:"Golpe fuerte en la cabeza",
+a:[
+{text:"Evaluar y llamar emergencias",correct:true},
+{text:"Dormir inmediatamente",correct:false},
+{text:"Ignorar",correct:false}
+]},
+
+{q:"Objeto clavado en el cuerpo",
+a:[
+{text:"No retirarlo y estabilizar",correct:true},
+{text:"Sacarlo rápido",correct:false},
+{text:"Golpear alrededor",correct:false}
+]},
+
+{q:"Persona con dificultad para respirar",
+a:[
+{text:"Aflojar ropa y ayudar a respirar",correct:true},
+{text:"Darle comida",correct:false},
+{text:"Acostarlo boca abajo",correct:false}
+]}
+
+]
+
+window.startGame=function(){
+
+player=document.getElementById("name").value
+area=document.getElementById("area").value
+if(player===""){
+alert("Ingrese su nombre")
+return
+}
+if(player=="" || area==""){
+alert("Ingrese nombre y área")
+return
+}
+document.getElementById("intro").style.display="none"
+document.getElementById("game").style.display="block"
+
+loadQuestion()
+
+}
+
+function startTimer(){
+
+timeLeft=15
+
+document.getElementById("timer").innerText="⏱ Tiempo: "+timeLeft
+
+timer=setInterval(()=>{
+
+timeLeft--
+
+document.getElementById("timer").innerText="⏱ Tiempo: "+timeLeft
+
+if(timeLeft<=0){
+
+clearInterval(timer)
+
+current++
+
+loadQuestion()
+
+}
+
+},1000)
+
+}
+
+function loadQuestion(){
+
+if(current>=questions.length){
+endGame()
+return
+}
+
+let q=questions[current]
+
+document.getElementById("question").innerText=q.q
+
+let optionsDiv=document.getElementById("options")
+optionsDiv.innerHTML=""
+
+q.a.forEach((o)=>{
+
+let div=document.createElement("div")
+div.className="option"
+div.innerText=o.text
+div.onclick=()=>answer(o.correct)
+
+optionsDiv.appendChild(div)
+
+})
+
+clearInterval(timer)
+startTimer()
+
+}
+
+function answer(correct){
+
+clearInterval(timer)
+
+if(correct) score+=2
+
+current++
+
+loadQuestion()
+
+}
+
+function endGame(){
+
+document.getElementById("game").style.display="none"
+document.getElementById("result").style.display="block"
+
+document.getElementById("score").innerText="Nota final: "+score+" / 20"
+
+document.getElementById("ambulanceSound").play()
+
+push(ref(db,"ranking"),{
+name:player,
+area:area,
+score:score
+})
+loadRanking()
+
+}
+
+function loadRanking(){
+
+const rankingRef=ref(db,"ranking")
+
+onValue(rankingRef,(snapshot)=>{
+
+let data=snapshot.val()
+if(!data) return
+
+let arr=Object.values(data)
+
+arr.sort((a,b)=>b.score-a.score)
+
+let div=document.getElementById("ranking")
+
+div.innerHTML=""
+
+arr.slice(0,10).forEach((p,i)=>{
+
+let row=document.createElement("p")
+
+row.innerText=(i+1)+" - "+p.name+" ("+p.area+") | "+p.score+"/20"
+
+div.appendChild(row)
+
+})
+
+})
+
+}
+
+window.generateCertificate=function(){
+
+const now=new Date()
+
+document.getElementById("certificate").style.display="block"
+
+document.getElementById("certName").innerText=player
+document.getElementById("certArea").innerText="Área: "+area
+document.getElementById("certScore").innerText="Nota: "+score+" / 20"
+document.getElementById("certDate").innerText="Fecha: "+now.toLocaleDateString()
+document.getElementById("certTime").innerText="Hora: "+now.toLocaleTimeString()
+
+}
+
+window.downloadPDF = async function(){
+
+const { jsPDF } = window.jspdf
+
+const element = document.getElementById("certificate")
+
+const canvas = await html2canvas(element,{scale:2})
+
+const img = canvas.toDataURL("image/png")
+
+const pdf = new jsPDF("landscape","mm","a4")
+
+pdf.addImage(img,"PNG",10,10,270,180)
+
+pdf.save("certificado_sinba_primeros_auxilios.pdf")
+
+// convertir a blob para guardar
+const blob = pdf.output("blob")
+
+// ruta en firebase
+const fileRef = storageRef(storage,"certificados/"+player+".pdf")
+
+await uploadBytes(fileRef, blob)
+
+alert("Certificado guardado en la nube")
+
+}
+</script>
+
+</body>
+</html>
